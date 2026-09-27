@@ -282,79 +282,59 @@ namespace superKitAutomacao {
     let proximoIdCGRAM = 0;
     let cgramCache: { [desenho: string]: number } = {};
 
-    function processarEGravarCGRAM(leds: any): string {
+    function processarEGravarCGRAM(leds: string): string {
         if (!leds) return "";
 
-        let key = "";
-
-        // Processa objeto do tipo Image (quando chamado via blocos com imageLiteral=1)
-        if (typeof leds === "object" && leds.pixel) {
-            for (let row = 0; row < 8; row++) {
-                for (let col = 0; col < 5; col++) {
-                    key += leds.pixel(col, row) ? "1" : "0";
-                }
-            }
-
-            if (cgramCache[key] !== undefined) {
-                return String.fromCharCode(cgramCache[key]);
-            }
-
-            let charId = proximoIdCGRAM;
-            proximoIdCGRAM = (proximoIdCGRAM + 1) % 8;
-            cgramCache[key] = charId;
-
-            enviarComandoLCD(0x40 | (charId << 3));
-
-            for (let row = 0; row < 8; row++) {
-                let val = 0;
-                for (let col = 0; col < 5; col++) {
-                    if (leds.pixel(col, row)) {
-                        val |= (1 << (4 - col));
-                    }
-                }
-                enviarDadosLCD(val);
-            }
-
-            enviarComandoLCD(0x80);
-            return String.fromCharCode(charId);
+        if (cgramCache[leds] !== undefined) {
+            return String.fromCharCode(cgramCache[leds]);
         }
-
-        // Processa caso seja passado como string (fallback)
-        let ledsStr = leds.toString();
-        let linhas = ledsStr.split("\n");
-        let count = 0;
 
         let charId = proximoIdCGRAM;
         proximoIdCGRAM = (proximoIdCGRAM + 1) % 8;
+        cgramCache[leds] = charId;
 
         enviarComandoLCD(0x40 | (charId << 3));
 
-        for (let i = 0; i < linhas.length; i++) {
-            let line = linhas[i];
-            let lineNoSpaces = "";
-            for (let j = 0; j < line.length; j++) {
-                let c = line.charAt(j);
-                if (c != " " && c != "\r" && c != "\t") {
-                    lineNoSpaces += c;
-                }
-            }
-            if (lineNoSpaces.length == 0) continue;
+        let rowVal = 0;
+        let col = 0;
+        let count = 0;
 
-            let targetLine = (lineNoSpaces.length == 5) ? lineNoSpaces : line;
-            let val = 0;
-            let col = 0;
-            for (let k = 0; k < targetLine.length; k++) {
-                let ch = targetLine.charAt(k);
-                if (ch == " ") continue;
-                if (ch == "#" || ch == "1" || ch == "*") {
-                    val |= (1 << (4 - col));
+        // Varrer a string caractere por caractere (evita split e RegExp)
+        for (let i = 0; i < leds.length; i++) {
+            let ch = leds.charAt(i);
+
+            if (ch == "\n" || ch == "\r") {
+                if (col > 0) {
+                    enviarDadosLCD(rowVal);
+                    count++;
+                    rowVal = 0;
+                    col = 0;
+                    if (count >= 8) break;
                 }
-                col++;
-                if (col >= 5) break;
+                continue;
             }
-            enviarDadosLCD(val);
+
+            if (ch == " " || ch == "\t") continue;
+
+            if (ch == "#" || ch == "1" || ch == "*") {
+                rowVal |= (1 << (4 - col));
+                col++;
+            } else if (ch == "." || ch == "0" || ch == "_") {
+                col++;
+            }
+
+            if (col >= 5) {
+                enviarDadosLCD(rowVal);
+                count++;
+                rowVal = 0;
+                col = 0;
+                if (count >= 8) break;
+            }
+        }
+
+        if (col > 0 && count < 8) {
+            enviarDadosLCD(rowVal);
             count++;
-            if (count >= 8) break;
         }
 
         while (count < 8) {
@@ -366,14 +346,13 @@ namespace superKitAutomacao {
         return String.fromCharCode(charId);
     }
 
-    // CORREÇÃO: O parâmetro deve ser do tipo 'Image' para ser compatível com imageLiteral=1
     //% blockId="superkit_custom_char_matrix"
     //% block="%leds"
     //% imageLiteral=1
     //% imageLiteralColumns=5
     //% imageLiteralRows=8
     //% weight=91 group="Displays"
-    export function caractereCustomizado(leds: Image): string {
+    export function caractereCustomizado(leds: string): string {
         return processarEGravarCGRAM(leds);
     }
 
