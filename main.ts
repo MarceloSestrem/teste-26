@@ -316,61 +316,9 @@ namespace superKitAutomacao {
     let cgramCache: { [desenho: string]: number } = {};
 
 
-    // Função auxiliar interna para gravar na CGRAM do LCD
-    function processarEGravarCGRAM(leds: string): string {
-        if (cgramCache[leds] !== undefined) {
-            return String.fromCharCode(cgramCache[leds]);
-        }
-
-
-        let charId = proximoIdCGRAM;
-        proximoIdCGRAM = (proximoIdCGRAM + 1) % 8;
-        cgramCache[leds] = charId;
-
-
-        enviarComandoLCD(0x40 | (charId << 3));
-
-
-        let linhas = leds.split("\n");
-        let count = 0;
-
-
-        for (let i = 0; i < linhas.length; i++) {
-            let linha = linhas[i].trim();
-            if (linha.length == 0) continue;
-
-
-            let val = 0;
-            let col = 0;
-            for (let j = 0; j < linha.length; j++) {
-                let char = linha.charAt(j);
-                if (char == "#" || char == "1" || char == "*") {
-                    val |= (1 << (4 - col));
-                    col++;
-                } else if (char == "." || char == "0") {
-                    col++;
-                }
-                if (col >= 5) break;
-            }
-            enviarDadosLCD(val);
-            count++;
-            if (count >= 8) break;
-        }
-
-
-        while (count < 8) {
-            enviarDadosLCD(0);
-            count++;
-        }
-
-
-        enviarComandoLCD(0x80);
-        return String.fromCharCode(charId);
-    }
-
-
     /**
-     * Matriz 5x8 para desenhar um caractere e usá-lo diretamente dentro do texto.
+     * Bloco visual da matriz 5x8.
+     * ATENÇÃO: Para remover a caixa de texto, esta função DEVE conter apenas 'return leds;'
      */
     //% blockId="superkit_custom_char_matrix"
     //% block="%leds"
@@ -380,7 +328,74 @@ namespace superKitAutomacao {
     //% shim=TD_ID
     //% weight=91 group="Displays"
     export function caractereCustomizado(leds: string): string {
-        return processarEGravarCGRAM(leds);
+        return leds;
+    }
+
+
+    /**
+     * Processa a matriz do desenho, grava na memória CGRAM do LCD e exibe na tela.
+     */
+    //% blockId="superkit_show_custom_char"
+    //% block="exibir ícone %desenho=superkit_custom_char_matrix | na coluna %coluna linha %linha"
+    //% coluna.min=0 coluna.max=15 coluna.defl=0
+    //% linha.min=0 linha.max=1 linha.defl=0
+    //% weight=90 group="Displays"
+    export function exibirCaractereCustomizado(desenho: string, coluna: number = 0, linha: number = 0): void {
+        let charId: number;
+
+
+        // Se esse mesmo desenho já foi salvo no LCD, reaproveita o ID existente
+        if (cgramCache[desenho] !== undefined) {
+            charId = cgramCache[desenho];
+        } else {
+            // Aloca o próximo slot (0 a 7)
+            charId = proximoIdCGRAM;
+            proximoIdCGRAM = (proximoIdCGRAM + 1) % 8;
+            cgramCache[desenho] = charId;
+
+
+            // Aponta para o endereço CGRAM correspondente
+            enviarComandoLCD(0x40 | (charId << 3));
+
+
+            let linhas = desenho.split("\n");
+            let count = 0;
+
+
+            for (let i = 0; i < linhas.length; i++) {
+                let l = linhas[i].trim();
+                if (l.length == 0) continue;
+
+
+                let val = 0;
+                let col = 0;
+                for (let j = 0; j < l.length; j++) {
+                    let char = l.charAt(j);
+                    if (char == "#" || char == "1" || char == "*") {
+                        val |= (1 << (4 - col));
+                        col++;
+                    } else if (char == "." || char == "0") {
+                        col++;
+                    }
+                    if (col >= 5) break;
+                }
+                enviarDadosLCD(val);
+                count++;
+                if (count >= 8) break;
+            }
+
+
+            while (count < 8) {
+                enviarDadosLCD(0);
+                count++;
+            }
+        }
+
+
+        // Posiciona o cursor no LCD (0x80 = linha 0, 0xC0 = linha 1) e envia o caractere
+        let endereco = (linha == 0 ? 0x80 : 0xC0) + coluna;
+        enviarComandoLCD(endereco);
+        enviarDadosLCD(charId);
     }
 
 
