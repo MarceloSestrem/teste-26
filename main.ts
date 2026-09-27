@@ -282,76 +282,52 @@ namespace superKitAutomacao {
     let proximoIdCGRAM = 0;
     let cgramCache: { [desenho: string]: number } = {};
 
-    function processarEGravarCGRAM(leds: string): string {
-        if (!leds) return "";
+    function gravarBytesCGRAM(bytes: string): string {
+        if (!bytes) return "";
 
-        if (cgramCache[leds] !== undefined) {
-            return String.fromCharCode(cgramCache[leds]);
+        if (cgramCache[bytes] !== undefined) {
+            return String.fromCharCode(cgramCache[bytes]);
         }
 
         let charId = proximoIdCGRAM;
         proximoIdCGRAM = (proximoIdCGRAM + 1) % 8;
-        cgramCache[leds] = charId;
+        cgramCache[bytes] = charId;
 
         enviarComandoLCD(0x40 | (charId << 3));
 
-        let rowVal = 0;
-        let col = 0;
-        let count = 0;
-
-        for (let i = 0; i < leds.length; i++) {
-            let ch = leds.charAt(i);
-
-            if (ch == "\n" || ch == "\r") {
-                if (col > 0) {
-                    enviarDadosLCD(rowVal);
-                    count++;
-                    rowVal = 0;
-                    col = 0;
-                    if (count >= 8) break;
-                }
-                continue;
+        for (let i = 0; i < 8; i++) {
+            if (i < bytes.length) {
+                enviarDadosLCD(bytes.charCodeAt(i) & 0x1F);
+            } else {
+                enviarDadosLCD(0);
             }
-
-            if (ch == " " || ch == "\t") continue;
-
-            if (ch == "#" || ch == "1" || ch == "*") {
-                rowVal |= (1 << (4 - col));
-                col++;
-            } else if (ch == "." || ch == "0" || ch == "_") {
-                col++;
-            }
-
-            if (col >= 5) {
-                enviarDadosLCD(rowVal);
-                count++;
-                rowVal = 0;
-                col = 0;
-                if (count >= 8) break;
-            }
-        }
-
-        if (col > 0 && count < 8) {
-            enviarDadosLCD(rowVal);
-            count++;
-        }
-
-        while (count < 8) {
-            enviarDadosLCD(0);
-            count++;
         }
 
         enviarComandoLCD(0x80);
         return String.fromCharCode(charId);
     }
+
     //% blockId="superkit_custom_char_matrix"
     //% block="$leds"
     //% imageLiteral=1
     //% imageLiteralColumns=5
     //% imageLiteralRows=8
+    //% shim=images::createImage
     //% weight=91 group="Displays"
     export function caractereCustomizado(leds: string): string {
-        return processarEGravarCGRAM(leds);}
+        let im = <Image><any>leds;
+        let bytes = "";
+        for (let y = 0; y < 8; y++) {
+            let rowByte = 0;
+            for (let x = 0; x < 5; x++) {
+                if (im.pixel(x, y)) {
+                    rowByte |= (1 << (4 - x));
+                }
+            }
+            bytes += String.fromCharCode(rowByte);
+        }
+        return gravarBytesCGRAM(bytes);
+    }
 
     //% blockId=superkit_print_char_lcd block="LCD mostrar caractere customizado ID $id | na Coluna $coluna Linha $linha"
     //% id.min=0 id.max=7 coluna.min=0 coluna.max=19 weight=90 group="Displays"
