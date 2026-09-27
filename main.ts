@@ -350,7 +350,6 @@ namespace superKitAutomacao {
     //% imageLiteral=1
     //% imageLiteralColumns=5
     //% imageLiteralRows=8
-    //% leds.shadow=""
     //% weight=91 group="Displays"
     export function caractereCustomizado(leds: string): string {
         return processarEGravarCGRAM(leds);
