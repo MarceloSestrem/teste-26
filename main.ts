@@ -344,7 +344,6 @@ namespace superKitAutomacao {
         enviarComandoLCD(0x80);
         return String.fromCharCode(charId);
     }
-
     //% blockId="superkit_custom_char_matrix"
     //% block="$leds"
     //% imageLiteral=1
@@ -352,8 +351,7 @@ namespace superKitAutomacao {
     //% imageLiteralRows=8
     //% weight=91 group="Displays"
     export function caractereCustomizado(leds: string): string {
-        return processarEGravarCGRAM(leds);
-    }
+        return processarEGravarCGRAM(leds);}
 
     //% blockId=superkit_print_char_lcd block="LCD mostrar caractere customizado ID $id | na Coluna $coluna Linha $linha"
     //% id.min=0 id.max=7 coluna.min=0 coluna.max=19 weight=90 group="Displays"
