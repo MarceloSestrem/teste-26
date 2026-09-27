@@ -299,7 +299,6 @@ namespace superKitAutomacao {
         let col = 0;
         let count = 0;
 
-        // Varrer a string caractere por caractere (evita split e RegExp)
         for (let i = 0; i < leds.length; i++) {
             let ch = leds.charAt(i);
 
@@ -351,6 +350,7 @@ namespace superKitAutomacao {
     //% imageLiteral=1
     //% imageLiteralColumns=5
     //% imageLiteralRows=8
+    //% leds.shadow=""
     //% weight=91 group="Displays"
     export function caractereCustomizado(leds: string): string {
         return processarEGravarCGRAM(leds);
