@@ -44,7 +44,8 @@ const enum LcdChar {
     c8 = 7
 }
 
-namespace makerbit {
+//% color="#0fbc11" icon="\uf108" block="SuperKit Automação"
+namespace superkitautomacao {
     const enum Lcd {
         Command = 0,
         Data = 1
@@ -270,7 +271,7 @@ namespace makerbit {
      * @param backlight novo estado da luz de fundo, ex: LcdBacklight.Off
      */
     //% subcategory="LCD"
-    //% blockId="makerbit_lcd_backlight" block="mudar luz de fundo do LCD para %backlight"
+    //% blockId="superkitautomacao_lcd_backlight" block="mudar luz de fundo do LCD para %backlight"
     //% weight=50
     export function setLcdBacklight(backlight: LcdBacklight): void {
         if (!lcdState && !connect()) {
@@ -285,7 +286,7 @@ namespace makerbit {
      * @param i2cAddress Endereço I2C do LCD (0 a 127), ex: 39
      */
     //% subcategory="LCD"
-    //% blockId="makerbit_lcd_set_address" block="conectar LCD no endereço I2C %i2cAddress"
+    //% blockId="superkitautomacao_lcd_set_address" block="conectar LCD no endereço I2C %i2cAddress"
     //% i2cAddress.min=0 i2cAddress.max=127
     //% weight=100
     export function connectLcd(i2cAddress: number): void {
@@ -364,7 +365,7 @@ namespace makerbit {
      * Retorna true se o LCD estiver conectado.
      */
     //% subcategory="LCD"
-    //% blockId="makerbit_lcd_is_connected" block="LCD está conectado"
+    //% blockId="superkitautomacao_lcd_is_connected" block="LCD está conectado"
     //% weight=69
     export function isLcdConnected(): boolean {
         return !!lcdState || connect();
@@ -374,7 +375,7 @@ namespace makerbit {
      * Grava um caractere customizado na memória do LCD usando a matriz 5x8.
      */
     //% subcategory="LCD"
-    //% blockId="makerbit_lcd_makecharacter"
+    //% blockId="superkitautomacao_lcd_makecharacter"
     //% block="criar caractere %char|%im"
     //% weight=60
     export function lcdMakeCharacter(char: LcdChar, im: Image): void {
@@ -402,7 +403,7 @@ namespace makerbit {
      * Matriz de pixels 5x8 para desenhar o caractere no editor de blocos.
      */
     //% subcategory="LCD"
-    //% blockId="makerbit_lcd_characterpixels"
+    //% blockId="superkitautomacao_lcd_characterpixels"
     //% block="caractere"
     //% imageLiteral=1
     //% imageLiteralColumns=5
