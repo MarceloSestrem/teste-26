@@ -837,7 +837,7 @@ namespace superKitAutomacao {
     /**
      * Retorna true se o LCD estiver conectado.
      */
-    //% group="Displays"
+    //% subcategory="LCD"
     //% blockId="superkitautomacao_lcd_is_connected" block="LCD está conectado"
     //% weight=69
     export function isLcdConnected(): boolean {
