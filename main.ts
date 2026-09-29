@@ -758,44 +758,77 @@ namespace superKitAutomacao {
         requestRedraw();
     }
 
-    //% blockId=superkitautomacao_lcd_string_novo block="LCD mostrar string $texto na $linha"
-    //% weight=47 group="Displays"
-    export function lcdMostrarStringNovo(
-        texto: string,
-        linha: LinhasLCD
+    /**
+   * Displays a text on a LCD1602 in the given position range.
+   * The text will be cropped if it is longer than the provided length.
+   * If there is space left, it will be filled with pad characters.
+   * @param text the text to show, eg: "superkitautomacao"
+   * @param startPosition the start position on the LCD, [1 - 32]
+   * @param length the maximum space used on the LCD, eg: 16
+   * @param option configures padding and alignment, eg: TextOption.Left
+   */
+    //% group="Displays"
+    //% blockId="makerbit_lcd_show_string_on_1602"
+    //% block="LCD1602 show %text | at position %startPosition=superkitautomacao_lcd_position_1602 with length %length || and %option"
+    //% text.shadowOptions.toString=true
+    //% length.min=1 length.max=32 length.fieldOptions.precision=1
+    //% expandableArgumentMode="toggle"
+    //% inlineInputMode="inline"
+    //% weight=90
+    export function showStringOnLcd1602(
+        text: string,
+        startPosition: number,
+        length: number,
+        option?: TextOption
     ): void {
-        let cols = (lcdState && lcdState.columns > 0) ? lcdState.columns : 16;
-        let rows = (lcdState && lcdState.rows > 0) ? lcdState.rows : 2;
-
         updateCharacterBuffer(
-            texto,
-            linha * cols,
-            cols,
-            cols,
-            rows,
-            TextAlignment.Left,
-            " "
+            text,
+            startPosition - 1,
+            length,
+            16,
+            2,
+            toAlignment(option),
+            toPad(option)
         );
     }
 
-    //% blockId=superkitautomacao_lcd_numero_novo block="LCD mostrar número $numero na $linha"
-    //% weight=46 group="Displays"
-    export function lcdMostrarNumeroNovo(
-        numero: number,
-        linha: LinhasLCD
-    ): void {
-        lcdMostrarStringNovo("" + numero, linha);
+    /**
+     * Clears the LCD1602 completely.
+     */
+    //% group="Displays"
+    //% blockId="superkitautomacao_lcd_clear_1602" block="LCD1602 clear display"
+    //% weight=89
+    export function clearLcd1602(): void {
+        showStringOnLcd1602("", 1, 32);
     }
 
-    //% blockId=superkitautomacao_lcd_caractere_novo block="LCD mostrar caractere $caractere na $linha"
-    //% weight=45 group="Displays"
-    export function lcdMostrarCaractereNovo(
-        caractere: string,
-        linha: LinhasLCD
-    ): void {
-        if (caractere.length == 0) return;
-        lcdMostrarStringNovo(caractere.charAt(0), linha);
+    /**
+     * Turns a LCD position into a number.
+     * @param pos the LCD position, eg: LcdPosition1602.Pos1
+     */
+    //% group="Displays"
+    //% blockId=superkitautomacao_lcd_position_1602
+    //% block="%pos"
+    //% pos.fieldEditor="gridpicker"
+    //% pos.fieldOptions.columns=16
+    //% blockHidden=true
+    export function position1602(pos: LcdPosition1602): number {
+        return pos;
     }
+
+    /**
+     * Display a custom character at a specified LCD position.
+     */
+    //% group="Displays"
+    //% blockId="superkitautomacao_lcd_showchararacter1602"
+    //% block="LCD1602 show character %char|at position %position=superkitautomacao_lcd_position_1602"
+    //% weight=58
+    export function lcdShowCharacter1602(char: LcdChar, position: number): void {
+        setCharacter(char, position - 1, 16, 2);
+    }
+
+
+
 
     // =======================================================
     // OLED
