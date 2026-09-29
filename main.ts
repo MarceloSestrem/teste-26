@@ -276,7 +276,7 @@ namespace superKitAutomacao {
     //% blockId=superkit_print_num_lcd block="LCD mostrar número %numero | na Coluna %coluna Linha %linha"
     //% coluna.min=0 coluna.max=19 weight=94 group="Displays"
     export function mostrarNumeroLCD(numero: number, coluna: number, linha: LinhasLCD): void {
-        mostrarTextoLCD(numero.toString(), coluna, linha);
+        mostrarTextoLCD("" + numero, coluna, linha);
     }
 
     let proximoIdCGRAM = 0;
@@ -346,10 +346,10 @@ namespace superKitAutomacao {
     }
 
     /**
-     * Bloco editor de matriz 5x8 para desenhar um caractere customizado no LCD.
+     * Bloco de texto que desenha uma matriz de pixels 5x8 para o LCD.
      */
     //% blockId="makerbit_lcd_characterpixels"
-    //% block="caractere"
+    //% block="caractere %leds"
     //% imageLiteral=1
     //% imageLiteralColumns=5
     //% imageLiteralRows=8
@@ -363,64 +363,59 @@ namespace superKitAutomacao {
      * Grava uma matriz de pixels 5x8 em um slot de caractere customizado (0 a 7).
      */
     //% blockId="makerbit_lcd_makecharacter"
-    //% block="criar caractere LCD %char | matriz %im"
+    //% block="criar caractere LCD ID %char | matriz %im"
     //% char.min=0 char.max=7
+    //% imageLiteral=1
+    //% imageLiteralColumns=5
+    //% imageLiteralRows=8
+    //% imageLiteralScale=0.8
     //% weight=60 group="Displays"
-    export function lcdMakeCharacter(char: number, im: any): void {
+    export function lcdMakeCharacter(char: number, im: string): void {
         let charId = Math.clamp(0, 7, char);
         enviarComandoLCD(0x40 | (charId << 3));
 
-        if (typeof im === "string") {
-            let rowVal = 0;
-            let col = 0;
-            let count = 0;
-            for (let i = 0; i < im.length; i++) {
-                let ch = im.charAt(i);
-                if (ch == "\n" || ch == "\r") {
-                    if (col > 0) {
-                        enviarDadosLCD(rowVal);
-                        count++;
-                        rowVal = 0;
-                        col = 0;
-                        if (count >= 8) break;
-                    }
-                    continue;
-                }
-                if (ch == " " || ch == "\t") continue;
+        let rowVal = 0;
+        let col = 0;
+        let count = 0;
 
-                if (ch == "#" || ch == "1" || ch == "*") {
-                    rowVal |= (1 << (4 - col));
-                    col++;
-                } else if (ch == "." || ch == "0" || ch == "_") {
-                    col++;
-                }
-
-                if (col >= 5) {
+        for (let i = 0; i < im.length; i++) {
+            let ch = im.charAt(i);
+            if (ch == "\n" || ch == "\r") {
+                if (col > 0) {
                     enviarDadosLCD(rowVal);
                     count++;
                     rowVal = 0;
                     col = 0;
                     if (count >= 8) break;
                 }
+                continue;
             }
-            while (count < 8) {
-                enviarDadosLCD(0);
-                count++;
+            if (ch == " " || ch == "\t") continue;
+
+            if (ch == "#" || ch == "1" || ch == "*") {
+                rowVal |= (1 << (4 - col));
+                col++;
+            } else if (ch == "." || ch == "0" || ch == "_") {
+                col++;
             }
-        } else if (im && typeof im.pixel === "function") {
-            for (let y = 0; y < 8; y++) {
-                let rowVal = 0;
-                for (let x = 0; x < 5; x++) {
-                    if (im.pixel(x, y)) {
-                        rowVal |= (1 << (4 - x));
-                    }
-                }
+
+            if (col >= 5) {
                 enviarDadosLCD(rowVal);
+                count++;
+                rowVal = 0;
+                col = 0;
+                if (count >= 8) break;
             }
-        } else {
-            for (let k = 0; k < 8; k++) {
-                enviarDadosLCD(0);
-            }
+        }
+
+        if (col > 0 && count < 8) {
+            enviarDadosLCD(rowVal);
+            count++;
+        }
+
+        while (count < 8) {
+            enviarDadosLCD(0);
+            count++;
         }
 
         enviarComandoLCD(0x80);
