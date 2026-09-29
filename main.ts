@@ -612,27 +612,9 @@ namespace superKitAutomacao {
     // BLOCOS DO LCD
     // =======================================================
 
-    //% group="Displays"
-    //% blockId="superkitautomacao_lcd_config" block="configurar LCD modelo $modelo endereço I2C $i2cAddress"
-    //% i2cAddress.defl=0x27
-    //% weight=101
-    export function configurarLCD(modelo: ModeloLCD, i2cAddress: number = 0x27): void {
-        connectLcd(i2cAddress);
-        let rows = (modelo == ModeloLCD.LCD20x4) ? 4 : 2;
-        let cols = (modelo == ModeloLCD.LCD20x4) ? 20 : 16;
-        if (lcdState) {
-            initBuffer(cols, rows);
-        }
-    }
 
-    //% group="Displays"
-    //% blockId="superkitautomacao_lcd_backlight" block="mudar luz de fundo do LCD para $backlight"
-    //% weight=50
-    export function setLcdBacklight(backlight: LcdBacklight): void {
-        if (!lcdState && !connect()) return;
-        lcdState.backlight = backlight;
-        send(Lcd.Command, 0);
-    }
+
+
 
     //% group="Displays"
     //% blockId="superkitautomacao_lcd_set_address" block="conectar LCD no endereço I2C $i2cAddress"
