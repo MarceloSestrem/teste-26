@@ -154,15 +154,15 @@ namespace superKitAutomacao {
     }
 
 
-    export enum ServoPorta {
-        //% block="S1"
-        S1 = 1,
-        //% block="S2"
-        S2 = 2,
-        //% block="S3"
-        S3 = 3,
-        //% block="S4"
-        S4 = 4
+    export enum Servos {
+        S1 = 0x01,
+        S2 = 0x02,
+        S3 = 0x03,
+        S4 = 0x04,
+        S5 = 0x05,
+        S6 = 0x06,
+        S7 = 0x07,
+        S8 = 0x08
     }
 
 
@@ -399,7 +399,7 @@ namespace superKitAutomacao {
     //% angulo.min=0 angulo.max=180
     //% weight=90 group="Robótica"
     export function controlarServo(
-        porta: ServoPorta,
+        porta: Servos,
         angulo: number
     ): void {
         let canalChip = 11 + porta;
