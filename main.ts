@@ -768,7 +768,7 @@ namespace superKitAutomacao {
    * @param option configures padding and alignment, eg: TextOption.Left
    */
     //% group="Displays"
-    //% blockId="makerbit_lcd_show_string_on_1602"
+    //% blockId="superkitautomacao_lcd_show_string_on_1602"
     //% block="LCD1602 show %text | at position %startPosition=superkitautomacao_lcd_position_1602 with length %length || and %option"
     //% text.shadowOptions.toString=true
     //% length.min=1 length.max=32 length.fieldOptions.precision=1
