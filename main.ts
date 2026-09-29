@@ -2008,28 +2008,18 @@ namespace superKitAutomacao {
     // Nenhuma função ou bloco existente foi alterado.
 
     //% blockId=superkitautomacao_lcd_string_novo
-    //% block="LCD mostrar string %texto na $linha"
+    //% block="LCD mostrar string $texto na $linha"
     //% weight=47 group="Displays"
     export function lcdMostrarStringNovo(
         texto: string,
         linha: LinhasLCD
     ): void {
-        if (!lcdState && !connect()) {
-            return;
-        }
-
-        initBuffer(16, 2);
-
-        if (linha >= lcdState.rows) {
-            return;
-        }
-
         updateCharacterBuffer(
             texto,
-            linha * lcdState.columns,
-            lcdState.columns,
-            lcdState.columns,
-            lcdState.rows,
+            linha * 16,
+            16,
+            16,
+            2,
             TextAlignment.Left,
             " "
         );
@@ -2037,7 +2027,7 @@ namespace superKitAutomacao {
 
 
     //% blockId=superkitautomacao_lcd_numero_novo
-    //% block="LCD mostrar número %numero na $linha"
+    //% block="LCD mostrar número $numero na $linha"
     //% weight=46 group="Displays"
     export function lcdMostrarNumeroNovo(
         numero: number,
@@ -2048,7 +2038,7 @@ namespace superKitAutomacao {
 
 
     //% blockId=superkitautomacao_lcd_caractere_novo
-    //% block="LCD mostrar caractere %caractere na $linha"
+    //% block="LCD mostrar caractere $caractere na $linha"
     //% weight=45 group="Displays"
     export function lcdMostrarCaractereNovo(
         caractere: string,
@@ -2063,4 +2053,5 @@ namespace superKitAutomacao {
             linha
         );
     }
+
 }
