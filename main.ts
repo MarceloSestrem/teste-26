@@ -359,6 +359,73 @@ namespace superKitAutomacao {
         return processarEGravarCGRAM(leds);
     }
 
+    /**
+     * Grava uma matriz de pixels 5x8 em um slot de caractere customizado (0 a 7).
+     */
+    //% blockId="makerbit_lcd_makecharacter"
+    //% block="criar caractere LCD %char | matriz %im"
+    //% char.min=0 char.max=7
+    //% weight=60 group="Displays"
+    export function lcdMakeCharacter(char: number, im: any): void {
+        let charId = Math.clamp(0, 7, char);
+        enviarComandoLCD(0x40 | (charId << 3));
+
+        if (typeof im === "string") {
+            let rowVal = 0;
+            let col = 0;
+            let count = 0;
+            for (let i = 0; i < im.length; i++) {
+                let ch = im.charAt(i);
+                if (ch == "\n" || ch == "\r") {
+                    if (col > 0) {
+                        enviarDadosLCD(rowVal);
+                        count++;
+                        rowVal = 0;
+                        col = 0;
+                        if (count >= 8) break;
+                    }
+                    continue;
+                }
+                if (ch == " " || ch == "\t") continue;
+
+                if (ch == "#" || ch == "1" || ch == "*") {
+                    rowVal |= (1 << (4 - col));
+                    col++;
+                } else if (ch == "." || ch == "0" || ch == "_") {
+                    col++;
+                }
+
+                if (col >= 5) {
+                    enviarDadosLCD(rowVal);
+                    count++;
+                    rowVal = 0;
+                    col = 0;
+                    if (count >= 8) break;
+                }
+            }
+            while (count < 8) {
+                enviarDadosLCD(0);
+                count++;
+            }
+        } else if (im && typeof im.pixel === "function") {
+            for (let y = 0; y < 8; y++) {
+                let rowVal = 0;
+                for (let x = 0; x < 5; x++) {
+                    if (im.pixel(x, y)) {
+                        rowVal |= (1 << (4 - x));
+                    }
+                }
+                enviarDadosLCD(rowVal);
+            }
+        } else {
+            for (let k = 0; k < 8; k++) {
+                enviarDadosLCD(0);
+            }
+        }
+
+        enviarComandoLCD(0x80);
+    }
+
     //% blockId=superkit_print_char_lcd block="LCD mostrar caractere customizado ID %id | na Coluna %coluna Linha %linha"
     //% id.min=0 id.max=7 coluna.min=0 coluna.max=19 weight=90 group="Displays"
     export function mostrarCaractereCustomizadoLCD(id: number, coluna: number, linha: LinhasLCD): void {
