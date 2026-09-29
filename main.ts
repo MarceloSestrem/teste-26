@@ -837,7 +837,7 @@ namespace superKitAutomacao {
     /**
      * Retorna true se o LCD estiver conectado.
      */
-    //% group="Displays"
+    //% subcategory="LCD"
     //% blockId="superkitautomacao_lcd_is_connected" block="LCD está conectado"
     //% weight=69
     export function isLcdConnected(): boolean {
@@ -922,190 +922,6 @@ namespace superKitAutomacao {
     }
 
 
-
-
-    // =======================================================
-    // NOVOS BLOCOS LCD — TEXTO, NÚMERO E CARACTERE
-    // =======================================================
-    // Estes blocos são adicionais e não alteram os blocos
-    // LCD já existentes acima.
-
-    /**
-     * Mostra uma STRING no LCD a partir da linha e coluna informadas.
-     * Para LCD 16x2, as linhas válidas são 0 e 1 e as colunas 0 a 15.
-     */
-    //% blockId=superkitautomacao_lcd_mostrar_string
-    //% block="LCD mostrar texto %texto na linha %linha coluna %coluna"
-    //% linha.min=0 linha.max=3
-    //% coluna.min=0 coluna.max=19
-    //% texto.shadow="text"
-    //% weight=58
-    //% group="Displays"
-    export function lcdMostrarString(
-        texto: string,
-        linha: number,
-        coluna: number
-    ): void {
-        if (!lcdState && !connect()) {
-            return;
-        }
-
-        // Se o LCD ainda não tiver dimensões definidas,
-        // usa 16x2 como configuração padrão.
-        if (lcdState.columns === 0 || lcdState.rows === 0) {
-            initBuffer(16, 2);
-        }
-
-        linha = Math.clamp(0, lcdState.rows - 1, Math.round(linha));
-        coluna = Math.clamp(0, lcdState.columns - 1, Math.round(coluna));
-
-        let posicao = linha * lcdState.columns + coluna;
-        let espacoDisponivel = lcdState.columns - coluna;
-
-        if (texto.length > espacoDisponivel) {
-            texto = texto.substr(0, espacoDisponivel);
-        }
-
-        updateCharacterBuffer(
-            texto,
-            posicao,
-            texto.length,
-            lcdState.columns,
-            lcdState.rows,
-            TextAlignment.Left,
-            " "
-        );
-    }
-
-    /**
-     * Mostra um NÚMERO no LCD a partir da linha e coluna informadas.
-     */
-    //% blockId=superkitautomacao_lcd_mostrar_numero
-    //% block="LCD mostrar número %numero na linha %linha coluna %coluna"
-    //% linha.min=0 linha.max=3
-    //% coluna.min=0 coluna.max=19
-    //% numero.shadow="number"
-    //% weight=57
-    //% group="Displays"
-    export function lcdMostrarNumero(
-        numero: number,
-        linha: number,
-        coluna: number
-    ): void {
-        lcdMostrarString(
-            "" + numero,
-            linha,
-            coluna
-        );
-    }
-
-    /**
-     * Mostra um CARACTERE simples no LCD.
-     * Aceita uma string de um ou mais caracteres; somente o primeiro
-     * caractere será enviado ao LCD.
-     */
-    //% blockId=superkitautomacao_lcd_mostrar_caractere
-    //% block="LCD mostrar caractere %caractere na linha %linha coluna %coluna"
-    //% linha.min=0 linha.max=3
-    //% coluna.min=0 coluna.max=19
-    //% caractere.shadow="text"
-    //% weight=56
-    //% group="Displays"
-    export function lcdMostrarCaractere(
-        caractere: string,
-        linha: number,
-        coluna: number
-    ): void {
-        if (caractere.length == 0) {
-            return;
-        }
-
-        lcdMostrarString(
-            caractere.charAt(0),
-            linha,
-            coluna
-        );
-    }
-
-    /**
-     * Mostra diretamente o código ASCII de um caractere.
-     * Exemplo: 65 = A, 48 = 0.
-     */
-    //% blockId=superkitautomacao_lcd_mostrar_ascii
-    //% block="LCD mostrar código ASCII %codigo na linha %linha coluna %coluna"
-    //% codigo.min=0 codigo.max=255
-    //% linha.min=0 linha.max=3
-    //% coluna.min=0 coluna.max=19
-    //% codigo.shadow="number"
-    //% weight=55
-    //% group="Displays"
-    export function lcdMostrarASCII(
-        codigo: number,
-        linha: number,
-        coluna: number
-    ): void {
-        if (!lcdState && !connect()) {
-            return;
-        }
-
-        if (lcdState.columns === 0 || lcdState.rows === 0) {
-            initBuffer(16, 2);
-        }
-
-        codigo = Math.clamp(0, 255, Math.round(codigo));
-
-        linha = Math.clamp(0, lcdState.rows - 1, Math.round(linha));
-        coluna = Math.clamp(0, lcdState.columns - 1, Math.round(coluna));
-
-        let posicao = linha * lcdState.columns + coluna;
-
-        setCharacter(
-            codigo,
-            posicao,
-            lcdState.columns,
-            lcdState.rows
-        );
-    }
-
-    /**
-     * Mostra um caractere personalizado criado nos slots 1 a 8.
-     * O valor 1 corresponde ao primeiro caractere personalizado.
-     */
-    //% blockId=superkitautomacao_lcd_mostrar_personalizado
-    //% block="LCD mostrar caractere personalizado %caractere na linha %linha coluna %coluna"
-    //% caractere.min=1 caractere.max=8
-    //% linha.min=0 linha.max=3
-    //% coluna.min=0 coluna.max=19
-    //% weight=54
-    //% group="Displays"
-    export function lcdMostrarCaracterePersonalizado(
-        caractere: number,
-        linha: number,
-        coluna: number
-    ): void {
-        if (!lcdState && !connect()) {
-            return;
-        }
-
-        if (lcdState.columns === 0 || lcdState.rows === 0) {
-            initBuffer(16, 2);
-        }
-
-        caractere = Math.clamp(1, 8, Math.round(caractere));
-
-        linha = Math.clamp(0, lcdState.rows - 1, Math.round(linha));
-        coluna = Math.clamp(0, lcdState.columns - 1, Math.round(coluna));
-
-        let posicao = linha * lcdState.columns + coluna;
-
-        // No HD44780, os caracteres personalizados ocupam os códigos 0 a 7.
-        setCharacter(
-            caractere - 1,
-            posicao,
-            lcdState.columns,
-            lcdState.rows
-        );
-    }
 
 
     // =======================================================
@@ -2184,6 +2000,70 @@ namespace superKitAutomacao {
     }
 
 
+
+
+    // =======================================================
+    // NOVOS BLOCOS — STRING, NÚMERO E CARACTERE
+    // =======================================================
+    // Estes três blocos são adicionais.
+    // Nenhuma função ou bloco existente foi alterado.
+
+    //% blockId=superkitautomacao_lcd_string_novo
+    //% block="LCD mostrar string %texto na $linha"
+    //% weight=47 group="Displays"
+    export function lcdMostrarStringNovo(
+        texto: string,
+        linha: LinhasLCD
+    ): void {
+        if (!lcdState && !connect()) {
+            return;
+        }
+
+        initBuffer(16, 2);
+
+        if (linha >= lcdState.rows) {
+            return;
+        }
+
+        updateCharacterBuffer(
+            texto,
+            linha * lcdState.columns,
+            lcdState.columns,
+            lcdState.columns,
+            lcdState.rows,
+            TextAlignment.Left,
+            " "
+        );
+    }
+
+
+    //% blockId=superkitautomacao_lcd_numero_novo
+    //% block="LCD mostrar número %numero na $linha"
+    //% weight=46 group="Displays"
+    export function lcdMostrarNumeroNovo(
+        numero: number,
+        linha: LinhasLCD
+    ): void {
+        lcdMostrarStringNovo("" + numero, linha);
+    }
+
+
+    //% blockId=superkitautomacao_lcd_caractere_novo
+    //% block="LCD mostrar caractere %caractere na $linha"
+    //% weight=45 group="Displays"
+    export function lcdMostrarCaractereNovo(
+        caractere: string,
+        linha: LinhasLCD
+    ): void {
+        if (caractere.length == 0) {
+            return;
+        }
+
+        lcdMostrarStringNovo(
+            caractere.charAt(0),
+            linha
+        );
+    }
 }
 
 
