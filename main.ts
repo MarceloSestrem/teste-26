@@ -94,7 +94,6 @@ namespace superKitAutomacao {
     }
 
 
-    // ✅ CORRIGIDO: enum exportado para poder ser usado em blocos
     export enum TextOption {
         //% block="alinhar à esquerda"
         AlignLeft,
@@ -107,7 +106,6 @@ namespace superKitAutomacao {
     }
 
 
-    // ✅ CORRIGIDO: enum exportado
     export enum LcdChar {
         //% block="1"
         c1 = 0,
@@ -410,7 +408,6 @@ namespace superKitAutomacao {
     }
 
 
-    // ✅ CORRIGIDO: adicionado .defl nos parâmetros de enum para o MakeCode renderizar dropdowns
     //% blockId=robotbit_ler_tres_sensores block="sensores Esquerdo $pinoEsq Centro $pinoCent Direito $pinoDir leem respectivamente $estEsq $estCent $estDir"
     //% estEsq.defl=EstadoLinha.Branco
     //% estCent.defl=EstadoLinha.Branco
@@ -584,7 +581,6 @@ namespace superKitAutomacao {
     }
 
 
-    // ✅ CORRIGIDO: adicionado //% blockHidden=true para não aparecer como bloco solto
     //% blockHidden=true
     export function updateCharacterBuffer(
         text: string,
@@ -685,7 +681,6 @@ namespace superKitAutomacao {
     }
 
 
-    // ✅ CORRIGIDO: marcado como hidden
     //% blockHidden=true
     export function toAlignment(option?: TextOption): TextAlignment {
         if (option === TextOption.AlignRight || option === TextOption.PadWithZeros) {
@@ -698,7 +693,6 @@ namespace superKitAutomacao {
     }
 
 
-    // ✅ CORRIGIDO: marcado como hidden
     //% blockHidden=true
     export function toPad(option?: TextOption): string {
         return option === TextOption.PadWithZeros ? "0" : " ";
@@ -801,8 +795,14 @@ namespace superKitAutomacao {
     }
 
 
+    /**
+     * Cria um caractere customizado 5x8 no LCD
+     * @param char qual slot de caractere usar (1-8)
+     * @param im o desenho do caractere (grade 5x8)
+     */
     //% group="Displays"
     //% blockId="superkitautomacao_lcd_makecharacter" block="criar caractere $char | $im"
+    //% im.shadow=superkitautomacao_lcd_characterpixels
     //% weight=60
     export function lcdMakeCharacter(char: LcdChar, im: Image): void {
         if (!lcdState && !autoConnect()) return;
@@ -825,19 +825,20 @@ namespace superKitAutomacao {
     }
 
 
-    // ✅ CORRIGIDO: bloco oculto (usado como literal de imagem)
+    /**
+     * Editor de imagem 5x8 para criar o desenho do caractere customizado
+     * @param i o desenho do caractere
+     */
     //% group="Displays"
     //% blockId="superkitautomacao_lcd_characterpixels" block="caractere"
     //% imageLiteral=1 imageLiteralColumns=5 imageLiteralRows=8 imageLiteralScale=0.6
     //% shim=images::createImage
     //% weight=59
-    //% blockHidden=true
     export function lcdCharacterPixels(i: string): Image {
         return <Image><any>"00000:00000:00000:00000:00000:00000:00000:00000";
     }
 
 
-    // ✅ CORRIGIDO: marcado como hidden
     //% blockHidden=true
     export function setCharacter(char: number, offset: number, columns: number, rows: number): void {
         if (!lcdState && !autoConnect()) return;
@@ -856,6 +857,13 @@ namespace superKitAutomacao {
     }
 
 
+    /**
+     * Mostra um texto no LCD1602 na posição especificada
+     * @param text o texto para mostrar, ex: "Super Kit"
+     * @param startPosition a posição inicial no LCD (1-32)
+     * @param length o espaço máximo usado no LCD
+     * @param option configura alinhamento e preenchimento
+     */
     //% group="Displays"
     //% blockId="superkitautomacao_lcd_show_string_on_1602"
     //% block="LCD1602 mostrar %text | na posição %startPosition=superkitautomacao_lcd_position_1602 com tamanho %length || e %option"
@@ -883,6 +891,9 @@ namespace superKitAutomacao {
     }
 
 
+    /**
+     * Limpa o LCD1602 completamente
+     */
     //% group="Displays"
     //% blockId="superkitautomacao_lcd_clear_1602" block="LCD1602 limpar display"
     //% weight=89
@@ -891,6 +902,10 @@ namespace superKitAutomacao {
     }
 
 
+    /**
+     * Converte uma posição do LCD em número
+     * @param pos a posição do LCD, ex: LcdPosition1602.Pos1
+     */
     //% group="Displays"
     //% blockId=superkitautomacao_lcd_position_1602
     //% block="%pos"
@@ -902,6 +917,11 @@ namespace superKitAutomacao {
     }
 
 
+    /**
+     * Mostra um caractere customizado em uma posição específica do LCD
+     * @param char o caractere (1-8) criado anteriormente
+     * @param position a posição no LCD (1-32)
+     */
     //% group="Displays"
     //% blockId="superkitautomacao_lcd_showchararacter1602"
     //% block="LCD1602 mostrar caractere %char|na posição %position=superkitautomacao_lcd_position_1602"
@@ -1329,4 +1349,6 @@ namespace superKitAutomacao {
         pins.digitalWritePin(pinoVm, estVm);
     }
 }
+
+
 
